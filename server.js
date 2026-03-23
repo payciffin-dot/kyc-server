@@ -57,21 +57,16 @@ app.post("/upload", upload.single("image"), async (req, res) => {
             return res.status(400).send("No file uploaded");
         }
 
-        // 🔥 Upload to Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: "kyc_uploads"
         });
 
-        console.log("✅ Cloudinary URL:", result.secure_url);
-
-        // 🔥 Delete local file (important)
         fs.unlinkSync(req.file.path);
 
-        // 🔥 Return Cloudinary URL
         res.send(result.secure_url);
 
     } catch (err) {
-        console.error("❌ Upload error:", err);
+        console.error(err);
         res.status(500).send("Upload failed");
     }
 });
