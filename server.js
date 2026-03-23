@@ -65,8 +65,8 @@ app.post("/upload", upload.single("image"), (req, res) => {
 app.use("/uploads", express.static(uploadDir));
 
 // 🔥 Health check (Render needs this)
-app.get("/", (req, res) => {
-    res.send("KYC Server Running 🚀");
+app.get("/upload", (req, res) => {
+    res.send("Use POST method to upload image");
 });
 
 // 🔥 PORT for Render
