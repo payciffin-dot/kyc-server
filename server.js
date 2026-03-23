@@ -57,8 +57,22 @@ app.post("/upload", upload.single("image"), async (req, res) => {
             return res.status(400).send("No file uploaded");
         }
 
+        // 🔥 Get data from Android
+        const email = req.body.email;   // user email
+        const type = req.body.type;     // aadhaar_front / aadhaar_back / pan
+
+        if (!email || !type) {
+            return res.status(400).send("Missing email or type");
+        }
+
+        // 🔥 sanitize email
+        const safeEmail = email.replace(/[@.]/g, "_");
+
+        // 🔥 Upload to Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: "kyc_uploads"
+            folder: `kyc/${safeEmail}`,
+            public_id: type, // file name
+            overwrite: true  // replace if exists
         });
 
         fs.unlinkSync(req.file.path);
