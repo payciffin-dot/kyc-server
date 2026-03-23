@@ -8,6 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+    cloud_name: "dfnyzlpor",
+    api_key: "835667694569265",
+    api_secret: "LpPVRV4YNmmU-YRjlujnTqA68lU"
+});
+
 // 🔥 Ensure uploads folder exists
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
@@ -41,7 +49,7 @@ const upload = multer({
 });
 
 // 🔥 Upload API
-app.post("/upload", upload.single("image"), (req, res) => {
+app.post("/upload", upload.single("image"), async (req, res) => {
 
     try {
 
@@ -49,11 +57,18 @@ app.post("/upload", upload.single("image"), (req, res) => {
             return res.status(400).send("No file uploaded");
         }
 
-        const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+        // 🔥 Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "kyc_uploads"
+        });
 
-        console.log("✅ Uploaded:", fileUrl);
+        console.log("✅ Cloudinary URL:", result.secure_url);
 
-        res.send(fileUrl);
+        // 🔥 Delete local file (important)
+        fs.unlinkSync(req.file.path);
+
+        // 🔥 Return Cloudinary URL
+        res.send(result.secure_url);
 
     } catch (err) {
         console.error("❌ Upload error:", err);
